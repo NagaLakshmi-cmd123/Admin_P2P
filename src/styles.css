@@ -1,0 +1,111 @@
+/* GLOBAL DARK MODE */
+body, html {
+  background: #121212 !important;
+  color: #ffffff !important;
+  overflow-x: hidden !important;  /* FIXES LEFT–RIGHT SCROLLING */
+  width: 100% !important;         /* FIXES PAGE SHIFTING */
+}
+
+/* All cards dark */
+.card {
+  background: #1e1e1e !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
+}
+
+/* Buttons */
+.btn {
+  color: #fff;
+}
+
+.btn-primary {
+  background: #0d6efd !important;
+  border-color: #0d6efd !important;
+}
+
+.btn-secondary {
+  background: #6c757d !important;
+}
+
+.btn-outline-primary,
+.btn-outline-warning,
+.btn-outline-success,
+.btn-outline-danger,
+.btn-outline-secondary {
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-warning:hover,
+.btn-outline-success:hover,
+.btn-outline-danger:hover,
+.btn-outline-secondary:hover {
+  background: #333 !important;
+}
+
+/* Tables */
+.table {
+  background: #1e1e1e !important;
+  color: #fff !important;
+}
+
+.table-dark {
+  background: #000 !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background: #181818 !important;
+}
+
+.table-bordered td,
+.table-bordered th {
+  border-color: #444 !important;
+}
+
+/* Modal Dark */
+.modal-content {
+  background: #1e1e1e !important;
+  color: #fff !important;
+}
+
+.modal-header,
+.modal-footer {
+  border-color: #333 !important;
+}
+
+/* Inputs/Forms */
+.form-control,
+.form-select {
+  background: #111 !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: #181818 !important;
+  color: #fff !important;
+  border-color: #555 !important;
+}
+
+/* Top bar Dark */
+.topbar {
+  background: #000 !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+/* Sidebar */
+.sidebar {
+  background: #000 !important;
+}
+
+.sidebar .nav-link {
+  color: #ccc !important;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  background: #0d6efd !important;
+  color: #fff !important;
+}

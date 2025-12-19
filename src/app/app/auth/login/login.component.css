@@ -1,0 +1,82 @@
+/* FULL WHITE BACKGROUND */
+.login-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+/* CENTERED CARD */
+.login-card {
+  width: 380px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* ERRORS */
+.validation-error {
+  font-size: 13px;
+  color: red;
+  margin-top: 5px;
+}
+
+.required-star {
+  color: red;
+}
+
+/* BUTTON COLORS */
+.btn-primary {
+  background-color: #4a67ff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #3b54d4;
+}
+
+
+/* FORCE WHITE INPUT FIELDS */
+input.form-control,
+input[type="email"],
+input[type="password"] {
+  background-color: #ffffff !important;
+  color: #000 !important;
+  border: 1px solid #ccc;
+}
+
+/* Remove dark mode auto styles (if any) */
+input.form-control:focus {
+  background-color: #ffffff !important;
+  color: #000 !important;
+  border-color: #4a67ff;
+  box-shadow: none;
+}
+
+/* Force label text to be black */
+.login-card .form-label,
+.login-card label,
+.login-card h2,
+.login-card p {
+  color: #000 !important;
+}
+
+/* Make the toggle button always visible */
+.btn-outline-secondary {
+  color: #000 !important;          /* Icon color */
+  border-color: #000 !important;    /* Border visible */
+}
+
+/* On hover - even darker */
+.btn-outline-secondary:hover {
+  background-color: #f0f0f0 !important;
+  color: #000 !important;
+  border-color: #000 !important;
+}
+
+/* Ensure bootstrap icon stays black */
+.btn-outline-secondary i {
+  color: #000 !important;
+}

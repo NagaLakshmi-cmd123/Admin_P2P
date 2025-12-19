@@ -1,0 +1,16 @@
+/* When sidebar is open */
+.content-shift {
+  margin-left: 250px;
+  transition: all 0.3s ease;
+}
+
+/* When sidebar is closed */
+.content-normal {
+  margin-left: 0;
+  transition: all 0.3s ease;
+}
+
+.topbar {
+  background: #000 !important;
+  color: #fff !important;
+}

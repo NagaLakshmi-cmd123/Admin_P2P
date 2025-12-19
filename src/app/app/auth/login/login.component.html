@@ -1,0 +1,83 @@
+<div class="login-container">
+  <div class="login-card">
+
+    <div class="text-center mb-4">
+      <h2 class="fw-bold">GoodsTrack</h2>
+    </div>
+
+    <form (ngSubmit)="onSubmit(loginForm)" #loginForm="ngForm" novalidate>
+
+      <!-- EMAIL / PHONE -->
+      <div class="mb-3">
+        <label class="form-label">
+          Email or Phone <span class="required-star">*</span>
+        </label>
+
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="credentials.emailOrPhone"
+          name="emailOrPhone"
+          required
+          placeholder="Enter email or phone"
+          #emailOrPhoneModel="ngModel"
+        />
+
+        <div
+          class="validation-error"
+          *ngIf="emailOrPhoneModel.invalid && (emailOrPhoneModel.dirty || emailOrPhoneModel.touched || isSubmitted)"
+        >
+          Email or phone is required.
+        </div>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="mb-3">
+        <label class="form-label">Password <span class="required-star">*</span></label>
+
+        <div class="input-group">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            [(ngModel)]="credentials.password"
+            name="password"
+            required
+            placeholder="Enter your password"
+            #passwordModel="ngModel"
+          />
+
+          <button type="button" class="btn btn-outline-secondary" (click)="togglePassword()">
+            <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
+        </div>
+
+        <div
+          class="validation-error"
+          *ngIf="passwordModel.invalid && (passwordModel.dirty || passwordModel.touched || isSubmitted)"
+        >
+          Password is required.
+        </div>
+      </div>
+
+      <!-- ERROR -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <!-- LOGIN BUTTON -->
+      <button
+        type="submit"
+        class="btn btn-primary w-100 mb-3"
+        [disabled]="!loginForm.valid || isLoading"
+      >
+        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Logging in...
+        </span>
+      </button>
+
+    </form>
+
+  </div>
+</div>

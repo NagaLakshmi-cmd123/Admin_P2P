@@ -1,0 +1,25 @@
+
+
+button {
+  font-weight: 500;
+}
+
+.table {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #1e1e1e !important;
+  color: white !important;
+}
+
+.badge {
+  padding: 6px 12px;
+  font-size: 14px;
+  
+}
+
+.modal-header .btn-close {
+  filter: invert(1);     /* Makes close button white */
+  opacity: 1 !important; /* Make it fully visible */
+}
+
+

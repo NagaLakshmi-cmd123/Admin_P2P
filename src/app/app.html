@@ -1,0 +1,28 @@
+<!-- SHOW SIDEBAR + TOPBAR ONLY IF NOT LOGIN PAGE -->
+<div *ngIf="!isLoginPage()">
+
+  <!-- Top Bar -->
+  <div class="topbar bg-dark text-white p-2 d-flex align-items-center">
+    <i class="bi bi-list fs-3 me-3 cursor-pointer" (click)="toggleSidebar()"></i>
+    <h4 class="m-0">GDC Admin Panel</h4>
+  </div>
+
+  <div class="d-flex">
+    <app-sidebar
+      [isOpen]="sidebarOpen()"
+      (close)="closeSidebar()">
+    </app-sidebar>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-grow-1 p-3 mt-2"
+         [ngClass]="sidebarOpen() ? 'content-shift' : 'content-normal'">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+</div>
+
+<!-- LOGIN PAGE (NO SIDEBAR, NO TOPBAR) -->
+<div *ngIf="isLoginPage()">
+  <router-outlet></router-outlet>
+</div>

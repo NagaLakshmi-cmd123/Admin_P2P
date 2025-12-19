@@ -1,0 +1,306 @@
+<!-- Create Ride Button -->
+<div class="mb-3 text-end">
+  <button class="btn btn-primary" (click)="openCreateRideModal()">Create Request</button>
+</div>
+
+<!-- Create Ride Modal -->
+<div class="modal fade" tabindex="-1" [ngClass]="{'show d-block': showModal}" [style.background]="'rgba(0,0,0,0.5)'"
+  (click)="closeCreateRideModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Create Ride</h5>
+        <button type="button" class="btn-close" (click)="closeCreateRideModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form #rideForm="ngForm">
+          <div class="mb-2">
+            <label class="form-label">User Name</label>
+            <input type="text" class="form-control" [(ngModel)]="newRide.userName" name="userName" required>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">From</label>
+            <input type="text" class="form-control" [(ngModel)]="newRide.fromLocation" name="from" required>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">To</label>
+            <input type="text" class="form-control" [(ngModel)]="newRide.toLocation" name="to" required>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Goods Description</label>
+            <input type="text" class="form-control" [(ngModel)]="newRide.goodsDescription" name="goodsDescription">
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Fare</label>
+            <input type="number" class="form-control" [(ngModel)]="newRide.fare" name="fare">
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Comments</label>
+            <textarea class="form-control" [(ngModel)]="newRide.comments" name="comments"></textarea>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Goods Photo 1 URL</label>
+            <input type="text" class="form-control" [(ngModel)]="newRide.goodsPhoto1Url" name="goodsPhoto1Url">
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Goods Photo 2 URL</label>
+            <input type="text" class="form-control" [(ngModel)]="newRide.goodsPhoto2Url" name="goodsPhoto2Url">
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Status</label>
+            <select class="form-select" [(ngModel)]="newRide.status" name="status" required>
+              <option value="PENDING">PENDING</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="REJECTED">REJECTED</option>
+              <option value="CANCELLED">CANCELLED</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeCreateRideModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="createRide()">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-4">
+
+  <h2 class="fw-bold mb-3">Ride Requests</h2>
+
+  <!-- Status Count Buttons -->
+  <div class="row mb-4">
+    <div class="col" *ngFor="let s of statusButtons">
+      <button class="btn w-100" [ngClass]="s.class" (click)="filterByStatus(s.key)">
+        {{s.label}} ({{ getCount(s.key) }})
+      </button>
+    </div>
+  </div>
+
+  <!-- View Button -->
+  <div class="mb-3 text-end">
+    <button class="btn btn-info" [disabled]="!selectedRequestId" (click)="openDetails()">
+      View Details
+    </button>
+  </div>
+
+  <!-- Table -->
+  <table class="table table-bordered table-striped shadow-sm">
+    <thead class="table-dark">
+      <tr>
+        <th>Select</th>
+        <th>ID</th>
+        <th>UserName</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Status</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let r of filteredRequests">
+
+        <td>
+          <input type="checkbox" [checked]="selectedRequestId === r.requestId" (change)="toggleSelection(r.requestId)">
+        </td>
+
+        <td>{{ r.requestId }}</td>
+        <td>{{ r.userName }}</td>
+        <td>{{ r.fromLocation }}</td>
+        <td>{{ r.toLocation }}</td>
+
+        <td>
+          <span class="badge" [ngClass]="{
+              'bg-warning': r.status==='PENDING',
+              'bg-success': r.status==='APPROVED',
+              'bg-danger': r.status==='REJECTED',
+              'bg-secondary': r.status==='CANCELLED'
+            }">{{ r.status }}</span>
+        </td>
+
+        <td>{{ r.createdAt | date:'short' }}</td>
+
+        <!-- ACTION BUTTONS RESTORED -->
+        <td>
+
+          <button class="btn btn-success btn-sm me-2" *ngIf="r.status === 'PENDING'" (click)="approve(r.requestId)">
+            Approve
+          </button>
+
+          <button class="btn btn-danger btn-sm me-2" *ngIf="r.status === 'PENDING'" (click)="reject(r.requestId)">
+            Reject
+          </button>
+
+          <button class="btn btn-secondary btn-sm" *ngIf="r.status === 'PENDING'" (click)="cancel(r.requestId)">
+            Cancel
+          </button>
+
+        </td>
+
+      </tr>
+
+    </tbody>
+  </table>
+
+  <!-- APPROVE POPUP -->
+<div class="modal fade show d-block" *ngIf="showApprovePopup" style="background: rgba(0,0,0,0.5)">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5>Approve Request</h5>
+        <button class="btn-close" (click)="showApprovePopup=false"></button>
+      </div>
+
+      <div class="modal-body">
+        <label>Approval Comments</label>
+        <textarea class="form-control" [(ngModel)]="approveComments" rows="3"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showApprovePopup=false">Cancel</button>
+        <button class="btn btn-success" (click)="submitApprove()">Approve</button>
+      </div>
+
+         </div>
+  </div>
+</div>
+
+<!-- REJECT POPUP -->
+<div class="modal fade show d-block" *ngIf="showRejectPopup" style="background: rgba(0,0,0,0.5)">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5>Reject Request</h5>
+        <button class="btn-close" (click)="showRejectPopup=false"></button>
+      </div>
+
+      <div class="modal-body">
+        <label>Reason</label>
+        <textarea class="form-control" [(ngModel)]="rejectReason" rows="3"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showRejectPopup=false">Cancel</button>
+        <button class="btn btn-danger" (click)="submitReject()">Reject</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div class="modal fade" tabindex="-1" [ngClass]="{'show d-block': showDetails}" [style.background]="'rgba(0,0,0,0.5)'"
+  (click)="closeDetails()">
+  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Request Details</h5>
+        <button class="btn-close" (click)="closeDetails()"></button>
+      </div>
+
+      <div class="modal-body">
+
+  <div class="row g-3">
+
+    <!-- REQUEST DETAILS -->
+    <div class="col-md-6">
+      <h5 class="mb-3">📌 Request</h5>
+      <div class="card p-3 bg-dark text-white rounded shadow">
+        <p><b>Request ID:</b> {{details?.requestId}}</p>
+        <p><b>Status:</b> {{details?.status}}</p>
+        <p><b>Created At:</b> {{details?.createdAt | date:'short'}}</p>
+        <p><b>From:</b> {{details?.fromLocation}}</p>
+        <p><b>To:</b> {{details?.toLocation}}</p>
+        <p><b>Goods Description:</b> {{details?.goodsDescription}}</p>
+        <p><b>Fare:</b> ₹{{details?.fare}}</p>
+
+ <div class="col-12 mt-3">
+  <h5 class="mb-2">📷 Goods Photos</h5>
+
+  <div class="row">
+    <div class="col-md-6" *ngIf="details?.goodsPhoto1Url">
+      <img [src]="details.goodsPhoto1Url"
+           class="img-fluid rounded shadow"
+           alt="Goods Photo 1">
+    </div>
+
+    <div class="col-md-6" *ngIf="details?.goodsPhoto2Url">
+      <img [src]="details.goodsPhoto2Url"
+           class="img-fluid rounded shadow"
+           alt="Goods Photo 2">
+    </div>
+  </div>
+</div>
+
+      </div>
+
+      
+    </div>
+   
+
+
+    <!-- CUSTOMER DETAILS -->
+    <div class="col-md-6">
+      <h5 class="mb-3">👤 Customer Details</h5>
+      <div class="card p-3 bg-secondary text-white rounded shadow">
+        <p><b>Name:</b> {{details?.customerDetails?.customerName}}</p>
+        <p><b>Phone:</b> {{details?.customerDetails?.customerPhone}}</p>
+        <p><b>Email:</b> {{details?.customerDetails?.customerEmail}}</p>
+        <p><b>City:</b> {{details?.customerDetails?.customerCity}}</p>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+</div>
+
+    </div>
+
+
+<!-- ADMIN ACTION RESULT CARD -->
+<div *ngIf="actionResult" class="card p-3 shadow mb-4">
+
+  <h4 class="text-success" *ngIf="actionResult.status === 'APPROVED'">✔ Request Approved</h4>
+  <h4 class="text-danger" *ngIf="actionResult.status === 'REJECTED'">✖ Request Rejected</h4>
+
+  <p><b>Request ID:</b> {{actionResult.requestId}}</p>
+  <p><b>Status:</b> {{actionResult.status}}</p>
+
+  <div *ngIf="actionResult.adminName">
+    <p><b>Admin Name:</b> {{actionResult.adminName}}</p>
+  </div>
+
+  <div *ngIf="actionResult.comments">
+    <p><b>Comments:</b> {{actionResult.comments}}</p>
+  </div>
+
+  <div *ngIf="actionResult.rejectedAt">
+    <p><b>Rejected At:</b> {{actionResult.rejectedAt | date:'short'}}</p>
+  </div>
+
+  <div *ngIf="actionResult.approvedAt">
+    <p><b>Approved At:</b> {{actionResult.approvedAt | date:'short'}}</p>
+  </div>
+
+  <div *ngIf="actionResult.workflowId">
+    <p><b>Workflow ID:</b> {{actionResult.workflowId}}</p>
+  </div>
+
+  <button class="btn btn-dark mt-2" (click)="closeActionCard()">Close</button>
+</div>
+</div>

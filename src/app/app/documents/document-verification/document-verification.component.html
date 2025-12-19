@@ -1,0 +1,79 @@
+<div class="container mt-4">
+  <h2 class="fw-bold mb-3">User Document Verification</h2>
+
+  <div class="row">
+    <div class="col-md-4" *ngFor="let doc of userData.documents">
+      <div class="card shadow-sm document-card">
+
+        <img *ngIf="doc.contentType.includes('image')" 
+             [src]="doc.url"
+             class="document-img">
+
+        <div class="card-body">
+
+          <h5 class="card-title">{{ doc.type.replace('_', ' ') }}</h5>
+
+          <span class="badge" [ngClass]="{
+              'bg-warning': doc.status === 'PENDING_VERIFICATION',
+              'bg-success': doc.status === 'VERIFIED',
+              'bg-danger': doc.status === 'REJECTED'
+          }">
+            {{ doc.status }}
+          </span>
+
+          <p class="mt-2 small">Uploaded: {{ doc.uploadDate | date:'medium' }}</p>
+
+          <div class="mt-2 d-flex justify-content-between">
+            <button class="btn btn-success btn-sm"
+                    (click)="approveDocument(doc)"
+                    [disabled]="doc.status === 'VERIFIED'">
+              Approve
+            </button>
+
+            <button class="btn btn-danger btn-sm"
+                    (click)="openRejectPopup(doc)"
+                    [disabled]="doc.status === 'REJECTED'">
+              Reject
+            </button>
+
+            <button class="btn btn-primary btn-sm" (click)="downloadDocument(doc)">
+              Download
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Approve & Reject All -->
+  <div class="mt-3">
+    <button class="btn btn-success me-2" (click)="approveDocuments()">
+      Approve All
+    </button>
+
+    <button class="btn btn-danger" (click)="openRejectAllPopup()">
+      Reject All
+    </button>
+  </div>
+</div>
+
+<!-- Reject Popup -->
+<div class="popup" *ngIf="showRejectPopup">
+  <div class="popup-content">
+    <h5 class="fw-bold">Enter Rejection Reason</h5>
+
+    <textarea class="form-control mt-2" rows="4"
+              [(ngModel)]="rejectReason"
+              placeholder="Reason for rejection..."></textarea>
+
+    <div class="mt-3 text-end">
+      <button class="btn btn-secondary me-2" (click)="cancelReject()">Cancel</button>
+      <button class="btn btn-danger"
+              (click)="currentDocument ? rejectDocument() : rejectAllDocuments()">
+        Reject
+      </button>
+    </div>
+  </div>
+</div>

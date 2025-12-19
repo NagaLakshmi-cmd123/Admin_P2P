@@ -1,0 +1,44 @@
+<div class="sidebar" [class.open]="isOpen">
+
+  <h4 class="text-center text-white mb-4">GDC Admin</h4>
+
+  <nav class="nav flex-column">
+
+    <a routerLink="/dashboard" class="nav-link"
+       (click)="onLinkClick()">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+
+    <a routerLink="/requests" class="nav-link"
+       (click)="onLinkClick()">
+      <i class="bi bi-list-check"></i> Requests
+    </a>
+
+    <a routerLink="/users" class="nav-link"
+       (click)="onLinkClick()">
+      <i class="bi bi-people"></i> Users
+    </a>
+
+    <a routerLink="/document-verification" class="nav-link"
+       (click)="onLinkClick()">
+      <i class="bi bi-file-earmark-check"></i> Document Verifications
+    </a>
+
+    <a routerLink="/senders" class="nav-link"
+       (click)="onLinkClick()">
+      <i class="bi bi-box-arrow-up-right"></i> Senders
+    </a>
+
+    <a routerLink="/drivers" class="nav-link"
+       (click)="onLinkClick()">
+      <i class="bi bi-car-front"></i> Drivers
+    </a>
+
+    <a routerLink="/payments" class="nav-link"
+       (click)="onLinkClick()">
+      <i class="bi bi-credit-card"></i> Payments
+    </a>
+
+  </nav>
+
+</div>
