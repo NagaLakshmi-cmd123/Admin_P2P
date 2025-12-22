@@ -130,9 +130,7 @@
 
         <td>{{ r.createdAt | date:'short' }}</td>
 
-        <!-- ACTION BUTTONS RESTORED -->
         <td>
-
           <button class="btn btn-success btn-sm me-2" *ngIf="r.status === 'PENDING'" (click)="approve(r.requestId)">
             Approve
           </button>
@@ -144,66 +142,37 @@
           <button class="btn btn-secondary btn-sm" *ngIf="r.status === 'PENDING'" (click)="cancel(r.requestId)">
             Cancel
           </button>
-
         </td>
 
       </tr>
-
     </tbody>
   </table>
+   <!-- ✅ PAGINATION (ADDED ONLY) -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <button class="btn btn-outline-secondary"
+            (click)="prevPage()"
+            [disabled]="currentPage === 1">
+      ⬅ Previous
+    </button>
 
-  <!-- APPROVE POPUP -->
-<div class="modal fade show d-block" *ngIf="showApprovePopup" style="background: rgba(0,0,0,0.5)">
-  <div class="modal-dialog">
-    <div class="modal-content">
+    <span class="fw-bold">
+      Page {{ currentPage }} of {{ totalPages }}
+    </span>
 
-      <div class="modal-header">
-        <h5>Approve Request</h5>
-        <button class="btn-close" (click)="showApprovePopup=false"></button>
-      </div>
-
-      <div class="modal-body">
-        <label>Approval Comments</label>
-        <textarea class="form-control" [(ngModel)]="approveComments" rows="3"></textarea>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="showApprovePopup=false">Cancel</button>
-        <button class="btn btn-success" (click)="submitApprove()">Approve</button>
-      </div>
-
-         </div>
+    <button class="btn btn-outline-secondary"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages">
+      Next ➡
+    </button>
   </div>
+
 </div>
 
-<!-- REJECT POPUP -->
-<div class="modal fade show d-block" *ngIf="showRejectPopup" style="background: rgba(0,0,0,0.5)">
-  <div class="modal-dialog">
-    <div class="modal-content">
 
-      <div class="modal-header">
-        <h5>Reject Request</h5>
-        <button class="btn-close" (click)="showRejectPopup=false"></button>
-      </div>
-
-      <div class="modal-body">
-        <label>Reason</label>
-        <textarea class="form-control" [(ngModel)]="rejectReason" rows="3"></textarea>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="showRejectPopup=false">Cancel</button>
-        <button class="btn btn-danger" (click)="submitReject()">Reject</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-</div>
 
 <!-- DETAILS MODAL -->
-<div class="modal fade" tabindex="-1" [ngClass]="{'show d-block': showDetails}" [style.background]="'rgba(0,0,0,0.5)'"
-  (click)="closeDetails()">
+<div class="modal fade" tabindex="-1" [ngClass]="{'show d-block': showDetails}"
+  [style.background]="'rgba(0,0,0,0.5)'" (click)="closeDetails()">
   <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
     <div class="modal-content">
 
@@ -213,94 +182,50 @@
       </div>
 
       <div class="modal-body">
+        <div class="row g-3">
 
-  <div class="row g-3">
+          <div class="col-md-6">
+            <h5 class="mb-3">📌 Request</h5>
+            <div class="card p-3 bg-dark text-white rounded shadow">
+              <p><b>Request ID:</b> {{details?.requestId}}</p>
+              <p><b>Status:</b> {{details?.status}}</p>
+              <p><b>Created At:</b> {{details?.createdAt | date:'short'}}</p>
+              <p><b>From:</b> {{details?.fromLocation}}</p>
+              <p><b>To:</b> {{details?.toLocation}}</p>
+              <p><b>Goods Description:</b> {{details?.goodsDescription}}</p>
+              <p><b>Fare:</b> ₹{{details?.fare}}</p>
 
-    <!-- REQUEST DETAILS -->
-    <div class="col-md-6">
-      <h5 class="mb-3">📌 Request</h5>
-      <div class="card p-3 bg-dark text-white rounded shadow">
-        <p><b>Request ID:</b> {{details?.requestId}}</p>
-        <p><b>Status:</b> {{details?.status}}</p>
-        <p><b>Created At:</b> {{details?.createdAt | date:'short'}}</p>
-        <p><b>From:</b> {{details?.fromLocation}}</p>
-        <p><b>To:</b> {{details?.toLocation}}</p>
-        <p><b>Goods Description:</b> {{details?.goodsDescription}}</p>
-        <p><b>Fare:</b> ₹{{details?.fare}}</p>
+              <!-- ✅ ADDED : ADMIN COMMENTS / REJECTION REASON -->
+              <!-- <div *ngIf="details?.comments" class="mt-3">
+                <h6 class="text-warning fw-bold">📝 Admin Comments</h6>
+                <div class="alert alert-danger mb-0">
+                  {{ details.comments }}
+                </div>
+              </div> -->
 
- <div class="col-12 mt-3">
-  <h5 class="mb-2">📷 Goods Photos</h5>
+              <div *ngIf="details?.status === 'REJECTED' && details?.comments">
+              <p><b>Admin Comments:</b> {{ details?.comments }}</p>
+              </div>
 
-  <div class="row">
-    <div class="col-md-6" *ngIf="details?.goodsPhoto1Url">
-      <img [src]="details.goodsPhoto1Url"
-           class="img-fluid rounded shadow"
-           alt="Goods Photo 1">
-    </div>
+              <!-- ✅ END -->
 
-    <div class="col-md-6" *ngIf="details?.goodsPhoto2Url">
-      <img [src]="details.goodsPhoto2Url"
-           class="img-fluid rounded shadow"
-           alt="Goods Photo 2">
-    </div>
-  </div>
-</div>
+            </div>
+          </div>
 
+          <div class="col-md-6">
+            <h5 class="mb-3">👤 Customer Details</h5>
+            <div class="card p-3 bg-secondary text-white rounded shadow">
+              <p><b>Name:</b> {{details?.customerDetails?.customerName}}</p>
+              <p><b>Phone:</b> {{details?.customerDetails?.customerPhone}}</p>
+              <p><b>Email:</b> {{details?.customerDetails?.customerEmail}}</p>
+              <p><b>City:</b> {{details?.customerDetails?.customerCity}}</p>
+            </div>
+          </div>
+          
+
+        </div>
       </div>
 
-      
-    </div>
-   
-
-
-    <!-- CUSTOMER DETAILS -->
-    <div class="col-md-6">
-      <h5 class="mb-3">👤 Customer Details</h5>
-      <div class="card p-3 bg-secondary text-white rounded shadow">
-        <p><b>Name:</b> {{details?.customerDetails?.customerName}}</p>
-        <p><b>Phone:</b> {{details?.customerDetails?.customerPhone}}</p>
-        <p><b>Email:</b> {{details?.customerDetails?.customerEmail}}</p>
-        <p><b>City:</b> {{details?.customerDetails?.customerCity}}</p>
-      </div>
-
-
     </div>
   </div>
-</div>
-</div>
-
-    </div>
-
-
-<!-- ADMIN ACTION RESULT CARD -->
-<div *ngIf="actionResult" class="card p-3 shadow mb-4">
-
-  <h4 class="text-success" *ngIf="actionResult.status === 'APPROVED'">✔ Request Approved</h4>
-  <h4 class="text-danger" *ngIf="actionResult.status === 'REJECTED'">✖ Request Rejected</h4>
-
-  <p><b>Request ID:</b> {{actionResult.requestId}}</p>
-  <p><b>Status:</b> {{actionResult.status}}</p>
-
-  <div *ngIf="actionResult.adminName">
-    <p><b>Admin Name:</b> {{actionResult.adminName}}</p>
-  </div>
-
-  <div *ngIf="actionResult.comments">
-    <p><b>Comments:</b> {{actionResult.comments}}</p>
-  </div>
-
-  <div *ngIf="actionResult.rejectedAt">
-    <p><b>Rejected At:</b> {{actionResult.rejectedAt | date:'short'}}</p>
-  </div>
-
-  <div *ngIf="actionResult.approvedAt">
-    <p><b>Approved At:</b> {{actionResult.approvedAt | date:'short'}}</p>
-  </div>
-
-  <div *ngIf="actionResult.workflowId">
-    <p><b>Workflow ID:</b> {{actionResult.workflowId}}</p>
-  </div>
-
-  <button class="btn btn-dark mt-2" (click)="closeActionCard()">Close</button>
-</div>
 </div>

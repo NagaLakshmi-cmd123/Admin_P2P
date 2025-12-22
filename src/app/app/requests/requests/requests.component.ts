@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../shared/admin.service';
@@ -10,23 +10,34 @@ import { AdminService } from '../../shared/admin.service';
   templateUrl: './requests.component.html',
   styleUrls: ['./requests.component.css']
 })
-export class RequestsComponent {
+export class RequestsComponent implements OnInit {
 
-  // 🔥 FIX 1: FILE BASE FOR IMAGES
   FILE_BASE = 'http://44.198.84.209:8085';
 
   constructor(private adminService: AdminService) {}
 
-  requests: any[] = [];
-  filteredRequests: any[] = [];
+  // =========================
+  // MASTER + VIEW DATA
+  // =========================
+  requests: any[] = [];          // MASTER DATA (never filtered)
+  filteredRequests: any[] = [];  // after status filter
+  pagedRequests: any[] = [];     // after pagination
 
+  // =========================
+  // PAGINATION
+  // =========================
+  pageSize = 10;
+  currentPage = 1;
+  totalPages = 1;
+
+  // =========================
+  // STATE
+  // =========================
   selectedRequestId: string | null = null;
   selectedStatus: string = 'ALL';
 
   showModal = false;
   showDetails = false;
-
-  details: any = null;
 
   showApprovePopup = false;
   showRejectPopup = false;
@@ -34,9 +45,12 @@ export class RequestsComponent {
   approveComments = '';
   rejectReason = '';
 
+  details: any = null;
   actionResult: any = null;
 
-  // New Ride form
+  // =========================
+  // CREATE
+  // =========================
   newRide = {
     userName: '',
     fromLocation: '',
@@ -57,94 +71,116 @@ export class RequestsComponent {
     { key: 'CANCELLED', label: 'Cancelled', class: 'btn btn-outline-secondary' }
   ];
 
+  // =========================
+  // INIT
+  // =========================
   ngOnInit() {
     this.loadRequests();
   }
 
-  // -------------------------------------------------------
-  // LOAD REQUESTS + FIX IMAGE URLS HERE
-  // -------------------------------------------------------
+  // =========================
+  // LOAD REQUESTS (ONCE)
+  // =========================
   loadRequests() {
     this.adminService.getAllRequests().subscribe(res => {
-
-      // 🔥 FIX 2: Convert backend image path to full path
       this.requests = res.data.content.map((r: any) => ({
-        ...r,
-        goodsPhoto1Url: r.goodsPhoto1Url
-          ? this.fixImageUrl(r.goodsPhoto1Url)
-          : null,
-
-        goodsPhoto2Url: r.goodsPhoto2Url
-          ? this.fixImageUrl(r.goodsPhoto2Url)
-          : null
-      }));
-
-      this.filteredRequests = [...this.requests];
-    });
-  }
-
-  // 🔥 FIX 3: Method to fix image URL properly
-  fixImageUrl(url: string): string {
-    if (!url) return '';
-
-    // If backend already returns full URL → use as it is
-    if (url.startsWith('http')) return url;
-
-    // Otherwise append base URL
-    return this.FILE_BASE + url;
-  }
-
-
-  toggleSelection(id: string) {
-    this.selectedRequestId = this.selectedRequestId === id ? null : id;
-  }
-
-  filterByStatus(status: string) {
-    this.selectedStatus = status;
-
-    if (status === 'ALL') {
-      this.filteredRequests = [...this.requests];
-      return;
-    }
-
-    if (status === 'PENDING') {
-      this.adminService.getPendingRequests().subscribe(res => {
-        this.filteredRequests = res.data.content.map((r:any) => ({
-          ...r,
-          goodsPhoto1Url: r.goodsPhoto1Url ? this.fixImageUrl(r.goodsPhoto1Url) : null,
-          goodsPhoto2Url: r.goodsPhoto2Url ? this.fixImageUrl(r.goodsPhoto2Url) : null
-        }));
-      });
-      return;
-    }
-
-    this.adminService.getRequestsByStatus(status).subscribe(res => {
-      this.filteredRequests = res.data.content.map((r:any) => ({
         ...r,
         goodsPhoto1Url: r.goodsPhoto1Url ? this.fixImageUrl(r.goodsPhoto1Url) : null,
         goodsPhoto2Url: r.goodsPhoto2Url ? this.fixImageUrl(r.goodsPhoto2Url) : null
       }));
+
+      this.applyFilter('ALL');
     });
   }
 
-  // CREATE REQUEST
-  openCreateRideModal() { this.showModal = true; }
-  closeCreateRideModal() { this.showModal = false; }
-
-  createRide() {
-    this.adminService.createRequest(this.newRide).subscribe(() => {
-      alert('Created Successfully');
-      this.showModal = false;
-      this.loadRequests();
-    });
+  fixImageUrl(url: string): string {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return this.FILE_BASE + url;
   }
 
+  // =========================
+  // FILTER (CLIENT SIDE ONLY)
+  // =========================
+  filterByStatus(status: string) {
+    this.applyFilter(status);
+  }
+
+  applyFilter(status: string) {
+    this.selectedStatus = status;
+    this.currentPage = 1;
+
+    if (status === 'ALL') {
+      this.filteredRequests = [...this.requests];
+    } else {
+      this.filteredRequests = this.requests.filter(
+        r => r.status === status
+      );
+    }
+
+    this.applyPagination();
+  }
+
+  // =========================
+  // PAGINATION
+  // =========================
+  applyPagination() {
+    this.totalPages = Math.max(
+      1,
+      Math.ceil(this.filteredRequests.length / this.pageSize)
+    );
+
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+
+    this.pagedRequests = this.filteredRequests.slice(start, end);
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.applyPagination();
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.applyPagination();
+    }
+  }
+
+  // =========================
+  // COUNTS (ALWAYS MASTER)
+  // =========================
   getCount(status: string): number {
     if (status === 'ALL') return this.requests.length;
     return this.requests.filter(r => r.status === status).length;
   }
 
+  // =========================
+  // SELECTION
+  // =========================
+  toggleSelection(id: string) {
+    this.selectedRequestId = this.selectedRequestId === id ? null : id;
+  }
+
+  // =========================
+  // CREATE
+  // =========================
+  openCreateRideModal() { this.showModal = true; }
+  closeCreateRideModal() { this.showModal = false; }
+
+  createRide() {
+    this.adminService.createRequest(this.newRide).subscribe(() => {
+      this.showModal = false;
+      this.loadRequests();
+    });
+  }
+
+  // =========================
   // APPROVE
+  // =========================
   approve(id: string) {
     this.selectedRequestId = id;
     this.showApprovePopup = true;
@@ -168,9 +204,12 @@ export class RequestsComponent {
     });
   }
 
+  // =========================
   // REJECT
+  // =========================
   reject(id: string) {
     this.selectedRequestId = id;
+    this.rejectReason = '';
     this.showRejectPopup = true;
   }
 
@@ -184,24 +223,44 @@ export class RequestsComponent {
       adminPhone,
       this.rejectReason
     ).subscribe(res => {
-      this.actionResult = res;
+
+      this.actionResult = { ...res, comments: this.rejectReason };
+
+      const index = this.requests.findIndex(
+        r => r.requestId === this.selectedRequestId
+      );
+
+      if (index !== -1) {
+        this.requests[index].status = 'REJECTED';
+        this.requests[index].comments = this.rejectReason;
+      }
+
+      this.applyFilter(this.selectedStatus);
       this.showRejectPopup = false;
-      this.loadRequests();
     });
   }
 
+  // =========================
+  // CANCEL
+  // =========================
   cancel(id: string) {
     this.adminService.cancel(id).subscribe(() => this.loadRequests());
   }
 
-  // DETAILS MODAL
+  // =========================
+  // DETAILS
+  // =========================
   openDetails() {
     if (!this.selectedRequestId) return;
 
     this.adminService.getRequestById(this.selectedRequestId).subscribe(res => {
-      let data = res.data;
+      const data = res.data;
 
-      // 🔥 FIX 4: Convert details photo URLs also
+      data.comments =
+        data.comments ||
+        this.actionResult?.comments ||
+        null;
+
       data.goodsPhoto1Url = data.goodsPhoto1Url ? this.fixImageUrl(data.goodsPhoto1Url) : null;
       data.goodsPhoto2Url = data.goodsPhoto2Url ? this.fixImageUrl(data.goodsPhoto2Url) : null;
 
@@ -211,6 +270,5 @@ export class RequestsComponent {
   }
 
   closeDetails() { this.showDetails = false; }
-
   closeActionCard() { this.actionResult = null; }
 }
